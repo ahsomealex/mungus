@@ -1,14 +1,23 @@
 exports.handler = async (event) => {
-  // Only allow POST requests
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json"
+  };
+
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers
+    };
+  }
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        error: "Method Not Allowed"
-      })
+      headers,
+      body: JSON.stringify({ error: "Method Not Allowed" })
     };
   }
 
@@ -19,42 +28,27 @@ exports.handler = async (event) => {
   } catch {
     return {
       statusCode: 400,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        error: "Invalid JSON"
-      })
+      headers,
+      body: JSON.stringify({ error: "Invalid JSON" })
     };
   }
 
   const { username, password } = data;
 
-  const correctUsername = process.env.LOGIN_USERNAME;
-  const correctPassword = process.env.LOGIN_PASSWORD;
-
   if (
-    username === correctUsername &&
-    password === correctPassword
+    username === process.env.LOGIN_USERNAME &&
+    password === process.env.LOGIN_PASSWORD
   ) {
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        result: "success"
-      })
+      headers,
+      body: JSON.stringify({ result: "success" })
     };
   }
 
   return {
     statusCode: 401,
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      result: "failure"
-    })
+    headers,
+    body: JSON.stringify({ result: "failure" })
   };
 };
